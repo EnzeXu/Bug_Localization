@@ -12,3 +12,5 @@ utils/__pycache__/*
 utils/.DS_Store
 
 *.ipynb
+
+test*.py
