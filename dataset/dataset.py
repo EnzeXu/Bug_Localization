@@ -4,8 +4,9 @@ from ._utils import get_repo_from_file
 
 def make_dataset():
     repo_list = get_repo_from_file("data/repo_list.csv")
-    print(repo_list[:3])
-    repo_list = repo_list[:1]
+    print(repo_list)
+    # repo_list = repo_list[:1]
+    repo_list = ["robolectric/robolectric"]
     status = 0
     print()
     print("$" * 80)

@@ -29,11 +29,16 @@ def extract_repo_name(url):
     return "unknown@repo"
     # return None  # If no match found
 
-def load_http_get(repo_name):
-    cache_folder = "data/cache_http_get"
+def load_http_get(repo_name, save_type: str):
+    cache_folder = os.path.join("data", "cache", "cache_http_get")
     if not os.path.exists(cache_folder):
         os.makedirs(cache_folder)
-    cache_folder_path = os.path.join(cache_folder, f"{repo_name}.pkl")
+
+    if not save_type:
+        cache_folder_path = os.path.join(cache_folder, f"{repo_name}.pkl")
+    else:
+        cache_folder_path = os.path.join(cache_folder, f"{repo_name}#{save_type}.pkl")
+
     if os.path.exists(cache_folder_path):
         with open(cache_folder_path, "rb") as f:
             dic = pickle.load(f)
@@ -42,19 +47,24 @@ def load_http_get(repo_name):
     return dic
 
 
-def save_http_get(repo_name, dic):
-    cache_folder = "data/cache_http_get"
-    cache_folder_path = os.path.join(cache_folder, f"{repo_name}.pkl")
+def save_http_get(repo_name, dic, save_type: str):
+    cache_folder = os.path.join("data", "cache", "cache_http_get")
+
+    if not save_type:
+        cache_folder_path = os.path.join(cache_folder, f"{repo_name}.pkl")
+    else:
+        cache_folder_path = os.path.join(cache_folder, f"{repo_name}#{save_type}.pkl")
+
     with open(cache_folder_path, "wb") as f:
         pickle.dump(dic, f)
 
 
-def http_get(url, params=None, headers=None, repeat_threshold=2, silence=False, timeout=5):
+def http_get(url, params=None, headers=None, repeat_threshold=2, silence=False, timeout=20, save_type=None):
     repo_name = extract_repo_name(url)
     if not params:
         params = {}
     status = 1
-    http_get_dic = load_http_get(repo_name)  # http_get_dic
+    http_get_dic = load_http_get(repo_name, save_type)  # http_get_dic
     query_string = str(urlencode(params))  # http_get_dic
     full_url = f"{url}?{query_string}"  # http_get_dic
     if full_url in http_get_dic:  # http_get_dic
@@ -105,15 +115,16 @@ def http_get(url, params=None, headers=None, repeat_threshold=2, silence=False, 
                     # return 0, None
 
     http_get_dic[full_url] = response  # http_get_dic
-    save_http_get(repo_name, http_get_dic)  # http_get_dic
+    save_http_get(repo_name, http_get_dic, save_type)  # http_get_dic
     if not silence:  # http_get_dic
         print(f"key '{full_url}' saved to http_get_dic")  # http_get_dic
     return status, response
 
 
-def http_get_multiple_page(url, params=None, headers=None, repeat_threshold=2, silence=False, timeout=5):
+def http_get_multiple_page(url, params=None, headers=None, repeat_threshold=2, silence=False, timeout=20, save_type=None):
     res_list = []
     page_id = 1
+    status = 1
     if not params:
         params = {}
     if not headers:
@@ -122,23 +133,24 @@ def http_get_multiple_page(url, params=None, headers=None, repeat_threshold=2, s
         headers["Authorization"] = f"token {TOKEN}"
     while url:
         params["page"] = page_id
-        response = requests.get(url, params=params, headers=headers, timeout=timeout)
-        if not silence:
-            print(f"[http_get] {response.url}")
+        # response = requests.get(url, params=params, headers=headers, timeout=timeout)
+        status, response = http_get(url, params=params, headers=headers, repeat_threshold=repeat_threshold, silence=silence, timeout=timeout, save_type=save_type)
+        # if not silence:
+        #     print(f"[http_get] {response.url}")
 
         # Check if the response is successful
-        if response.status_code != 200:
-            print(f"[http_get_multiple_page] Failed to retrieve info from: {response.url} (status_code: {response.status_code})")
+        if status == 0 or response.status_code != 200:
+            print(f"[http_get_multiple_page] Failed to retrieve info from: '{url}' params '{params}' (status_code: {response.status_code if status else 'N/A'})")
             again = 1
             while again <= repeat_threshold:
-                response = requests.get(url, params=params)
-                print(f"[http_get_multiple_page] Try again ({again}/{repeat_threshold}) status_code: {response.status_code}")
-                if response.status_code == 200:
+                status, response = http_get(url, params=params, headers=headers, repeat_threshold=repeat_threshold, silence=silence, timeout=timeout, save_type=save_type)
+                print(f"[http_get_multiple_page] Try again ({again}/{repeat_threshold}) status_code: {response.status_code if status else 'N/A'}")
+                if status and response.status_code == 200:
                     break
                 time.sleep(0.1 * again)
                 again += 1
 
-            if response.status_code != 200:
+            if not status or response.status_code != 200:
                 return 0, []
 
         # Add the current page of issues to the list

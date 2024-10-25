@@ -17,7 +17,10 @@ class BugReportPullRequest(BugReportBase):
         self.commit_list = None
         self.num_target_snippets = None
         self.num_neighbor_snippets = None
+        self.title = None
+        self.body = None
         self.get_commits()
+        self.get_pull_request_info()
 
         # self.message = None
 
@@ -33,7 +36,7 @@ class BugReportPullRequest(BugReportBase):
 
     def get_commits(self):
         commits_request_url = self.api_url + '/commits'
-        status, response = http_get(commits_request_url, silence=self.silence)
+        status, response = http_get(commits_request_url, silence=self.silence, save_type="get_commits")
         if not status:
             self.available = 0
             return
@@ -57,6 +60,19 @@ class BugReportPullRequest(BugReportBase):
             self.available = 0
         if not self.silence:
             self.print(f"[{self.repo}] {self.api_url}: [{self.num_target_snippets} vs. {self.num_neighbor_snippets}]")
+
+    def get_pull_request_info(self):
+        pull_request_url = self.api_url
+        status, response = http_get(pull_request_url, silence=self.silence, save_type="get_pull")
+        if not status:
+            self.available = 0
+            return
+        response = response.json()
+        if "body" not in response or "title" not in response:
+            self.available = 0
+        else:
+            self.title = response["title"]
+            self.body = response["body"]
 
 
 
