@@ -241,7 +241,7 @@ def is_main_language_english(repo_name):
     main_ratio = lang_list[0][1] / total_count
     english_ratio = lang_dic["en"] / total_count
     # print(f"repo_name = '{repo_name}', highest_lang = '{main_lang}', highest_ratio = {main_ratio:.4f}, english_ratio = {english_ratio:.4f}")
-    is_english = int((main_lang == "en") and english_ratio >= 0.5)
+    is_english = int((main_lang == "en") and english_ratio >= 0.7)
     return is_english, main_lang, main_ratio, english_ratio, lang_dic
 
 
