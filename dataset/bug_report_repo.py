@@ -193,7 +193,9 @@ class BugReportRepo(BugReportBase):
 
     @staticmethod
     def save_to_csv(list_to_save, col_names, save_path, lines_to_replace=None):
-        print(f"list_to_save: {len(list_to_save[0])}, col_names: {len(col_names)}")
+        print(f"[Before filtering] length: {len(list_to_save)}, list_to_save: {len(list_to_save[0])}, col_names: {len(col_names)}")
+        list_to_save = BugReportRepo.filter_none(list_to_save)
+        print(f"[After filtering] length: {len(list_to_save)}, list_to_save: {len(list_to_save[0])}, col_names: {len(col_names)}")
         if lines_to_replace is not None:
             list_to_save = [
                 [element.replace("\n", "    ") if i in lines_to_replace else element
@@ -203,6 +205,19 @@ class BugReportRepo(BugReportBase):
         print(f"list_to_save: {len(list_to_save[0])}, col_names: {len(col_names)}")
         df = pd.DataFrame(list_to_save, columns=col_names)
         df.to_csv(save_path, index=False)
+
+    @staticmethod
+    def filter_none(list_to_filter):
+        new_list = []
+        for one_list in list_to_filter:
+            available = 1
+            for element in one_list:
+                if element is None or element == "None":
+                    available = 0
+                    break
+            if available:
+                new_list.append(one_list)
+        return new_list
 
 
 
