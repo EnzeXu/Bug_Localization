@@ -9,7 +9,7 @@ from .bug_report_issue import BugReportIssue
 
 
 class BugReportRepo(BugReportBase):
-    def __init__(self, repo, silence=True):
+    def __init__(self, repo, silence=True, description=None):
         super().__init__(silence=silence)
 
         self.repo = repo.strip("/")
@@ -20,6 +20,7 @@ class BugReportRepo(BugReportBase):
         self.issue_id_list = [int(item["number"]) for item in self.issue_list]
         self.issue_url_list = [item["url"] for item in self.issue_list]
         self.issue_class_list = None
+        self.description = description if description else ""
         self.generate()
 
     def get_issue_list(self):
@@ -91,7 +92,7 @@ class BugReportRepo(BugReportBase):
                     self.issue_class_list = pickle.load(f)
             else:
                 self.issue_class_list = []
-                progress_bar = tqdm(total=len(self.issue_url_list))
+                progress_bar = tqdm(total=len(self.issue_url_list), desc=f"{self.description} {self.repo}")
                 for one_issue_url, one_issue_id in zip(self.issue_url_list, self.issue_id_list):
                     issue_cache_path = os.path.join(data_cache_issue_folder, f"{one_issue_id:06d}.pkl")
                     if os.path.exists(issue_cache_path):
@@ -115,7 +116,7 @@ class BugReportRepo(BugReportBase):
             positive_count = 0
             negative_count = 0
 
-            for one_br_issue in tqdm(self.issue_class_list):
+            for one_br_issue in tqdm(self.issue_class_list, desc=f"{self.description} {self.repo}"):
                 if not one_br_issue.available:
                     continue
                 for one_pull_request in one_br_issue.pull_request_list:

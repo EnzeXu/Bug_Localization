@@ -7,6 +7,8 @@ import datetime
 import pytz
 import re
 from urllib.parse import urlencode
+from langdetect import detect
+from collections import Counter
 
 from .PAT import TOKEN
 
@@ -187,3 +189,59 @@ def get_now_string(time_string="%Y%m%d_%H%M%S_%f"):
 
     # Return the time in the desired format
     return est_now.strftime(time_string)
+
+
+def is_main_language_english(repo_name):
+    url = f"https://api.github.com/repos/{repo_name}/issues"
+    headers = {
+        "Accept": "application/vnd.github.v3+json"
+    }
+    params = {
+        "state": "open",
+        "per_page": 100
+    }
+
+    status, response = http_get(url, headers=headers, params=params, silence=True)
+
+    if status == 0 or response.status_code != 200:
+        # print(f"Failed to fetch issues: {response.status_code}")
+        print(f"[repo name: {repo_name}] Error: Failed to fetch issues")
+        return 0, "Failed to fetch issues", 0.0, 0.0, {}
+
+
+    issues = response.json()
+    if not issues:
+        print(f"[repo name: {repo_name}] Error: No open issue")
+        return 0, "Error: No open issue", 0.0, 0.0, {}
+
+    # english_count = 0
+    total_count = 0
+    lang_dic = Counter()
+
+    for issue in issues:
+        title = issue.get("title", "")
+        try:
+            language = detect(title)
+            lang_dic[language] += 1
+            # print(f"title: '{title}' language: '{language}'")
+            # if language == "en":
+            #     english_count += 1
+            total_count += 1
+        except:
+            # Skip titles that cannot be detected
+            pass
+
+    if total_count == 0:
+        print(f"[repo name: {repo_name}] Error: No open issue can be detected")
+        return 0, "Error: No open issue can be detected", 0.0, 0.0, {}  # No issues to analyze
+
+    # If most titles are in English, return 1; otherwise, return 0
+    lang_list = sorted([(key, value) for key, value in lang_dic.items()], key=lambda x: -x[1])
+    main_lang = lang_list[0][0]
+    main_ratio = lang_list[0][1] / total_count
+    english_ratio = lang_dic["en"] / total_count
+    # print(f"repo_name = '{repo_name}', highest_lang = '{main_lang}', highest_ratio = {main_ratio:.4f}, english_ratio = {english_ratio:.4f}")
+    is_english = int((main_lang == "en") and english_ratio >= 0.5)
+    return is_english, main_lang, main_ratio, english_ratio, lang_dic
+
+
