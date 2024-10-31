@@ -1,5 +1,5 @@
-import transforms
-from transformers import RobertaTokenizer, T5ForConditionalGeneration
+from transformers import RobertaTokenizer, T5ForConditionalGeneration, T5Tokenizer
+
 import torch
 
 T5Code_tokenizer = RobertaTokenizer.from_pretrained('Salesforce/codet5-base')
@@ -10,9 +10,14 @@ model = T5ForConditionalGeneration.from_pretrained("google-t5/t5-small")
 
 def BROrMethodToVector(tokenizer, model, text):
     input_ids = tokenizer(text, return_tensors="pt").input_ids
-
+    
     with torch.no_grad():
-        outputs = model(input_ids)
-        last_hidden_states = outputs.last_hidden_state
-
+        encoder_outputs = model.encoder(input_ids)
+        last_hidden_states = encoder_outputs.last_hidden_state
+    
     return last_hidden_states
+
+if __name__ == "__main__":
+    text = "def add(a, b): return a + b"
+    vector = BROrMethodToVector(tokenizer, model, text)
+    print(vector)
