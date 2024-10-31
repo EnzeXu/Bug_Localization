@@ -12,3 +12,7 @@ utils/__pycache__/*
 utils/.DS_Store
 
 *.ipynb
+
+test*.py
+logs*.txt
+one_time*
