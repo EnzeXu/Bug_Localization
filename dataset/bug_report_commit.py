@@ -30,6 +30,8 @@ class BugReportCommit(BugReportBase):
         # self.issue_list = self._get_issue_list()
 
     def set_message(self, message):
+        if not message:
+            self.available = 0
         self.message = message
 
     @classmethod
@@ -42,7 +44,7 @@ class BugReportCommit(BugReportBase):
         repo, api_url, raw_url, last_id = BugReportBase.get_repo_urls_last_id(url)
         return cls(repo, last_id, api_url, raw_url, silence=silence)
 
-    def get_code_snippet_list(self):
+    def get_code_snippet_list(self, max_changed_lines_threshold=2):
         # commit_url = "https://github.com/androidx/media/commit/2ac8247cf4a60ac86a516a8c508d2bcbb1202b33"
         # br_commit = BugReportCommit.from_url(commit_url)
         # repo = br_commit.repo
@@ -51,13 +53,13 @@ class BugReportCommit(BugReportBase):
         diff_url = self.raw_url + '.diff'
         if not self.silence:
             self.print(f"diff_url: {diff_url}")
-        status, response = http_get(diff_url, silence=self.silence)
+        status, response = http_get(diff_url, silence=self.silence, save_type="get_commit_diff")
         if not status:
             return [], []
         diff_text = response.text
         # self.print(diff_text)
         changed_lines = self.parse_diff(diff_text)
-        if len(list(changed_lines.keys())) > 5:
+        if len(list(changed_lines.keys())) > max_changed_lines_threshold:
             return [], []
 
         target_functions_all = []
@@ -74,7 +76,7 @@ class BugReportCommit(BugReportBase):
             file_url = f"https://raw.githubusercontent.com/{self.repo}/{self.commit_hash}/{file_path}"
             if not self.silence:
                 self.print(f"file_url: {file_url}")
-            status, response = http_get(file_url, silence=self.silence)
+            status, response = http_get(file_url, silence=self.silence, save_type="get_file")
             if not status:
                 continue
             java_code = response.text

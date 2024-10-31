@@ -28,6 +28,7 @@ class BugReportIssue(BugReportBase):
             self.body = self.content_json["body"]
         else:
             self.body = ""
+            self.available = 0
 
     def get_issue_title(self):
         if self.content_json is None:
@@ -55,7 +56,7 @@ class BugReportIssue(BugReportBase):
     def get_all_pull_request_url_list(self):
         if not self.content_json:
             issue_url = f"https://api.github.com/repos/{self.repo}/issues/{self.issue_id}"
-            status, response = http_get(issue_url, silence=self.silence)
+            status, response = http_get(issue_url, silence=self.silence, save_type="get_issue")
             if not status:
                 self.available = 0
                 return
@@ -74,7 +75,7 @@ class BugReportIssue(BugReportBase):
 
         if "timeline_url" in self.content_json:
             issue_timeline_url = self.content_json["timeline_url"]
-            status, response = http_get(issue_timeline_url, silence=self.silence)
+            status, response = http_get(issue_timeline_url, silence=self.silence, save_type="get_issue_timeline")
             if status:
                 timeline_json = response.json()
                 timeline_pull_request_url_list = []
