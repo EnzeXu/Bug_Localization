@@ -3,3 +3,5 @@ tqdm
 pandas
 pytz
 langdetect
+transformers
+sentencepiece
