@@ -10,10 +10,12 @@ dataset/.DS_Store
 utils/.idea/*
 utils/__pycache__/*
 utils/.DS_Store
-test.py
+
 
 *.ipynb
 
 test*.py
 logs*.txt
 one_time*
+
+!test.py

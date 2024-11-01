@@ -3,7 +3,7 @@ from ._utils import get_repo_from_file
 
 
 def make_dataset():
-    repo_list = get_repo_from_file("data/repo_list_english.csv")
+    repo_list = get_repo_from_file("data/repo_list_final.csv")
     print(repo_list)
     # # repo_list = repo_list[:1]
     # repo_list = ["spring-cloud/spring-cloud-gateway"]
