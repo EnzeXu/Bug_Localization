@@ -1,7 +1,6 @@
 # from transformers import RobertaTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
 import torch
-
 from pretrained import T5CODE_TOKENIZER, T5TEXT_TOKENIZER, T5CODE_MODEL, T5TEXT_MODEL
 
 def BROrMethodToVector(tokenizer, model, text):
