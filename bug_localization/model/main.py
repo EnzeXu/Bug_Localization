@@ -34,7 +34,7 @@ def train(model, train_loader, criterion, optimizer, device):
         optimizer.step()
 
         total_loss += loss.item()
-        break
+        # break
 
     avg_loss = total_loss / len(train_loader)
     # print(f"Train Loss: {avg_loss:.4f}")
@@ -61,7 +61,7 @@ def validate(model, valid_loader, criterion, device):
             # print(f"targets: {targets}")
             loss = criterion(outputs.squeeze(1), targets)
             total_loss += loss.item()
-            break
+            # break
 
     avg_loss = total_loss / len(valid_loader)
     # print(f"Validation Loss: {avg_loss:.4f}")
@@ -121,9 +121,9 @@ def main_run(main_path):
     t5_tokenizer = T5TEXT_TOKENIZER.from_pretrained("t5-small")
     code_t5_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")  # Example CodeT5 model
 
-    train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer)
-    valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer)
-    test_loader = create_dataloader(test_data_list, t5_tokenizer, code_t5_tokenizer)
+    train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer, shuffle=True)
+    valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer, shuffle=False)
+    test_loader = create_dataloader(test_data_list, t5_tokenizer, code_t5_tokenizer, shuffle=False)
     print("train_loader length：", len(train_loader), "valid_load length：", len(valid_loader), "test_loader length：",
           len(test_loader))  # 9011, 1126, 1127
 

@@ -102,13 +102,13 @@ class BLNT5Dataset(Dataset):
 
 
 # Step 2: Prepare DataLoader
-def create_dataloader(data, t5_tokenizer, code_t5_tokenizer, batch_size=2):   #batch_size=2, 可以=16
+def create_dataloader(data, t5_tokenizer, code_t5_tokenizer, batch_size=2, shuffle=False):   #batch_size=2, 可以=16
     dataset = BLNT5Dataset(data, t5_tokenizer, code_t5_tokenizer)
     print("dataset length: ", len(dataset))
     dataloader = DataLoader(
         dataset,
         batch_size=batch_size,
-        shuffle=False,
+        shuffle=shuffle,
         collate_fn=lambda x: {
             "br_input_ids": torch.stack([item["br_input_ids"] for item in x]),
             "br_attention_mask": torch.stack([item["br_attention_mask"] for item in x]),
