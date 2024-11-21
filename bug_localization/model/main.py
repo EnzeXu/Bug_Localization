@@ -124,9 +124,11 @@ def main_run(main_path):
     t5_tokenizer = T5TEXT_TOKENIZER.from_pretrained("t5-small")
     code_t5_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")  # Example CodeT5 model
 
-    train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer, shuffle=True)
-    valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer, shuffle=False)
-    test_loader = create_dataloader(test_data_list, t5_tokenizer, code_t5_tokenizer, shuffle=False)
+    batch_size = 64
+
+    train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=True)
+    valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=False)
+    test_loader = create_dataloader(test_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=False)
     print("train_loader length：", len(train_loader), "valid_load length：", len(valid_loader), "test_loader length：",
           len(test_loader))  # 9011, 1126, 1127
 

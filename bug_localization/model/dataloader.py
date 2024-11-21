@@ -102,7 +102,7 @@ class BLNT5Dataset(Dataset):
 
 
 # Step 2: Prepare DataLoader
-def create_dataloader(data, t5_tokenizer, code_t5_tokenizer, batch_size=2, shuffle=False):   #batch_size=2, 可以=16
+def create_dataloader(data, t5_tokenizer, code_t5_tokenizer, batch_size, shuffle=False):   #batch_size=2, 可以=16
     dataset = BLNT5Dataset(data, t5_tokenizer, code_t5_tokenizer)
     print("dataset length: ", len(dataset))
     dataloader = DataLoader(
