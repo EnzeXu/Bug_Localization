@@ -104,6 +104,7 @@ def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs,
 
 
 def main_run(main_path):
+    wandb.init(project="BLNT5", name="In-Dis")
     # step1: 数据处理
     # 从robolectric_dataset.csv中读取数据，创造三元组列表。
     data_path = os.path.join(main_path, "data/csv/robolectric@robolectric.csv")
@@ -140,8 +141,17 @@ def main_run(main_path):
 
     # step3: init model
     model = BLNT5()
-    print(model)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # print(model)
+    gpu_id = 0
+
+    # Check if CUDA is available
+    device = torch.device(f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu")
+
+    # Set the default GPU for computation (optional)
+    if torch.cuda.is_available():
+        torch.cuda.set_device(gpu_id)
+
+    print(f"Using device: {device}")
     model.to(device)
     # one forward pass to test
     # for batch in train_loader:
@@ -161,7 +171,7 @@ def main_run(main_path):
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-    wandb.init(project="BLNT5", name="In-Dis")
+
     # Run training and validation
     run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=10, main_path=main_path)
     wandb.finish()
