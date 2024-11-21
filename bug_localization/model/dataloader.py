@@ -24,18 +24,32 @@ def process_csv_to_tuple_list(data_path):
 
     print("How many valid rows:", len(valid_rows))
     # create tuple from valid rows
-    br_len_list=[]
-    for _, row in valid_rows.iterrows():
+    br_len_list = []
+    method_len_list = []
+    score_list = []
+    for idx, row in valid_rows.iterrows():
+        # if idx == 2:
+        #     break
         title = str(row['issue_title'])
         body = str(row['issue_body'])
         br = title + "\t" + body
+        # print(f"BR: '{br}'")
 
         br_len_list.append(len(br))
 
-        method=str(row['commit_code_snippet'])
+        method = str(row['commit_code_snippet'])
+        method_len_list.append(len(method))
+
         score = int(row['relativity_score'])
-        tuple = (br,method,score)
+        score_list.append(score)
+        tuple = (br, method, score)
         tuple_data_list.append(tuple)
+
+    np.save("br_length.npy", np.array(br_len_list))
+    np.save("method_length.npy", np.array(method_len_list))
+    np.save("score.npy", np.array(score_list))
+    print(f"Score distribution: 0 count = {score_list.count(0)}, 1 count = {score_list.count(1)}, Total = {len(score_list)}")
+    # print(br_len_list)
 
     # print("br的长度列表: ", sorted(br_len_list), "\n" )
     print("min：", np.min(br_len_list), "max：", np.max(br_len_list), "mean：", np.mean(br_len_list), "median,", np.median(br_len_list) )

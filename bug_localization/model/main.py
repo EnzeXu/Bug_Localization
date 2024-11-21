@@ -178,7 +178,7 @@ def main_run(main_path):
 
 
     # Run training and validation
-    run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=10, main_path=main_path)
+    # run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=10, main_path=main_path)
     wandb.finish()
 
 

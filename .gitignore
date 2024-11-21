@@ -11,7 +11,8 @@ utils/.idea/*
 utils/__pycache__/*
 utils/.DS_Store
 
-
+*.npy
+*.png
 *.ipynb
 
 test*.py

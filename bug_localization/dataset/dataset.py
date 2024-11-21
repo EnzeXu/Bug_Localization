@@ -1,12 +1,23 @@
+import argparse
+
 from .bug_report_repo import BugReportRepo
 from ._utils import get_repo_from_file
 
 
-def make_dataset():
+def make_one_dataset():
+    parser = argparse.ArgumentParser(description='make_dataset')
+    parser.add_argument("--repo", type=str, default="robolectric/robolectric")
+    args = parser.parse_args()
+    br_repo = BugReportRepo(args.repo, silence=False)
+    print(f"[Finished make_dataset] {args.repo}")
+    return br_repo
+
+
+def make_all_dataset():
     repo_list = get_repo_from_file("data/repo_list_final.csv")
     print(repo_list)
     # # repo_list = repo_list[:1]
-    # repo_list = ["spring-cloud/spring-cloud-gateway"]
+    # repo_list = ["robolectric/robolectric"]  # [IMPORTANT] Please update it !
     status = 0
     print()
     print("$" * 80)

@@ -1,5 +1,6 @@
 PAT.py
 _*.py
+__pycache__/*
 
 !__init__.py
 !_utils.py
