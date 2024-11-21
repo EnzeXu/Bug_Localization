@@ -6,3 +6,4 @@ langdetect
 transformers
 sentencepiece
 torch
+wandb

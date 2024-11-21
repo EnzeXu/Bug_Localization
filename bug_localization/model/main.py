@@ -76,6 +76,7 @@ def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs,
 
     t0 = time.time()
     t_prev = t0
+    epoch_step = 1  # 10
 
     for epoch in range(epochs):
         # print(f"Epoch {epoch + 1}/{epochs} start")
@@ -85,7 +86,7 @@ def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs,
 
         wandb.log({"epoch": epoch, "train_loss": train_loss, "valid_loss": val_loss})
 
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % epoch_step == 0:
             print(f"Epoch {epoch + 1:04d}/{epochs:04d}, train_loss: {train_loss:.12f}, val_loss: {val_loss:.12f}, "
                   f"lr: {optimizer.param_groups[0]['lr']:.6f} "
                   f"(t_cost: {t_tmp - t_prev:.1f} s, "
@@ -142,7 +143,7 @@ def main_run(main_path):
     # step3: init model
     model = BLNT5()
     # print(model)
-    gpu_id = 0
+    gpu_id = 3
 
     # Check if CUDA is available
     device = torch.device(f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu")
