@@ -17,7 +17,7 @@ def train(model, train_loader, criterion, optimizer, device):
     model.train()
     total_loss = 0.0
 
-    for batch in train_loader:
+    for batch in tqdm(train_loader):
         br_input_ids = batch["br_input_ids"].to(device)
         br_attention_mask = batch["br_attention_mask"].to(device)
 
@@ -48,7 +48,7 @@ def validate(model, valid_loader, criterion, device):
     model.eval()
     total_loss = 0.0
     with torch.no_grad():
-        for batch in valid_loader:
+        for batch in tqdm(valid_loader):
             br_input_ids = batch["br_input_ids"].to(device)
             br_attention_mask = batch["br_attention_mask"].to(device)
 
