@@ -19,3 +19,7 @@ logs*.txt
 one_time*
 
 !test.py
+
+
+wandb/*
+save_model/*

@@ -1,10 +1,14 @@
-from dataloader import process_csv_to_tuple_list, split_data, create_dataloader
-from pretrained import T5CODE_TOKENIZER, T5TEXT_TOKENIZER
-from model import BLNT5
+import os.path
+
+from .dataloader import process_csv_to_tuple_list, split_data, create_dataloader
+from ..utils.pretrained import T5CODE_TOKENIZER, T5TEXT_TOKENIZER
+from .model import BLNT5
 
 import torch
+import time
 import torch.nn as nn
 import torch.optim as optim
+import wandb
 
 #train the data for 1 epoch using training dataset
 def train(model, train_loader, criterion, optimizer, device):
@@ -33,7 +37,7 @@ def train(model, train_loader, criterion, optimizer, device):
         break
 
     avg_loss = total_loss / len(train_loader)
-    print(f"Train Loss: {avg_loss:.4f}")
+    # print(f"Train Loss: {avg_loss:.4f}")
     return avg_loss
 
 
@@ -53,45 +57,65 @@ def validate(model, valid_loader, criterion, device):
 
             # Forward pass
             outputs = model(br_input_ids,br_attention_mask,method_input_ids,method_attention_mask)
+            # print(f"outputs.squeeze(1): {outputs.squeeze(1)}")
+            # print(f"targets: {targets}")
             loss = criterion(outputs.squeeze(1), targets)
             total_loss += loss.item()
             break
 
     avg_loss = total_loss / len(valid_loader)
-    print(f"Validation Loss: {avg_loss:.4f}")
+    # print(f"Validation Loss: {avg_loss:.4f}")
     return avg_loss
 
-def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=1):
+def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs, main_path):
     best_val_loss = float("inf")
 
+    save_model_folder = os.path.join(main_path, "save_model")
+    if not os.path.exists(save_model_folder):
+        os.makedirs(save_model_folder)
+
+    t0 = time.time()
+    t_prev = t0
+
     for epoch in range(epochs):
-        print(f"Epoch {epoch + 1}/{epochs} start")
+        # print(f"Epoch {epoch + 1}/{epochs} start")
         train_loss = train(model, train_loader, criterion, optimizer, device)
         val_loss = validate(model, valid_loader, criterion, device)
-        print(f"Epoch {epoch + 1}/{epochs}, train_loss: {train_loss}, valid_loss: {val_loss}" )
+        t_tmp = time.time()
 
-        # Save the best model
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            torch.save(model.state_dict(), "save_model/best_model.pth")
-            print("Current best model saved!")
+        wandb.log({"epoch": epoch, "train_loss": train_loss, "valid_loss": val_loss})
+
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch {epoch + 1:04d}/{epochs:04d}, train_loss: {train_loss:.12f}, val_loss: {val_loss:.12f}, "
+                  f"lr: {optimizer.param_groups[0]['lr']:.6f} "
+                  f"(t_cost: {t_tmp - t_prev:.1f} s, "
+                  f"t_total: {(t_tmp - t0) / 60:.3f} min, "
+                  f"t_remain: {(t_tmp - t0) / 60 / (epoch + 1) * (epochs - epoch - 1):.3f} min)", end="")
+            # Save the best model
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                torch.save(model.state_dict(), f"{save_model_folder}/best_model.pth")
+                print(" [Current Best]")
+                # print()
+            else:
+                print()
 
     print("Training complete.")
 
 
-if __name__ == '__main__':
+def main_run(main_path):
     # step1: 数据处理
     # 从robolectric_dataset.csv中读取数据，创造三元组列表。
-    data_path="../data/robolectric_dataset.csv"
+    data_path = os.path.join(main_path, "data/csv/robolectric@robolectric.csv")
     tuple_list = process_csv_to_tuple_list(data_path)
-    print("一共有多少tuple数据", len(tuple_list))    # 22527
+    print("# of tuple (total):", len(tuple_list))  # 22527
     # for (br, m, score) in tuple_list:
     #     print("(br=", br,"  m= ", m, "  score=", score, ")\n")
 
     # step2: split the data into train, val, and test set, (8:1:1) and use dataloader to become the input to the model
     train_data_list, valid_data_list, test_data_list = split_data(tuple_list)
-    print("训练集的长度是：", len(train_data_list), "验证集的长度是：", len(valid_data_list),"测试集的长度是：",len(test_data_list) )    # 18021，2252，2254
-
+    print("train length：", len(train_data_list), "val length：", len(valid_data_list), "test length：",
+          len(test_data_list))  # 18021，2252，2254
 
     t5_tokenizer = T5TEXT_TOKENIZER.from_pretrained("t5-small")
     code_t5_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")  # Example CodeT5 model
@@ -99,7 +123,8 @@ if __name__ == '__main__':
     train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer)
     valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer)
     test_loader = create_dataloader(test_data_list, t5_tokenizer, code_t5_tokenizer)
-    print( "train_loader的长度是：", len(train_loader), "valid_loader的长度是：", len(valid_loader),"test_loader的长度是：",len(test_loader) )   # 9011, 1126, 1127
+    print("train_loader length：", len(train_loader), "valid_load length：", len(valid_loader), "test_loader length：",
+          len(test_loader))  # 9011, 1126, 1127
 
     # for batch in test_loader:
     #     print( "Bug report tokens:",  batch["br_input_ids"], "Bug Report Input IDs Shape:", batch["br_input_ids"].shape)
@@ -111,10 +136,11 @@ if __name__ == '__main__':
     #     print( "score", batch["score"], "Score Tensor Shape:", batch["score"].shape)
     #     break
 
-    #step1和step2都在dataloader.py中的函数完成
+    # step1和step2都在dataloader.py中的函数完成
 
     # step3: init model
     model = BLNT5()
+    print(model)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     # one forward pass to test
@@ -133,7 +159,13 @@ if __name__ == '__main__':
 
     # Define criterion and optimizer
     criterion = nn.BCEWithLogitsLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
+    wandb.init(project="BLNT5", name="In-Dis")
     # Run training and validation
-    run(model, train_loader, valid_loader, criterion, optimizer, device)
+    run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=10, main_path=main_path)
+    wandb.finish()
+
+
+if __name__ == '__main__':
+    main_run(main_path="./")

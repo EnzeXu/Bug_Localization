@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from pretrained import T5CODE_MODEL, T5TEXT_MODEL
+from ..utils.pretrained import T5CODE_MODEL, T5TEXT_MODEL
 
 class BLNT5(nn.Module):
     def __init__(self, hidden_dim: int = 128):

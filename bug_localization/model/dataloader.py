@@ -22,7 +22,7 @@ def process_csv_to_tuple_list(data_path):
     df['relativity_score'] = pd.to_numeric(df['relativity_score'], errors='coerce')
     valid_rows = df[ (~df['relativity_score'].isnull())  & (~df['issue_title'].isnull()) & (~df['issue_body'].isnull()) & (~df['commit_code_snippet'].isnull()) & (df['relativity_score'].isin([0, 1])) ]
 
-    print("一共有多少行合理数据", len(valid_rows))
+    print("How many valid rows:", len(valid_rows))
     # create tuple from valid rows
     br_len_list=[]
     for _, row in valid_rows.iterrows():
@@ -38,7 +38,7 @@ def process_csv_to_tuple_list(data_path):
         tuple_data_list.append(tuple)
 
     # print("br的长度列表: ", sorted(br_len_list), "\n" )
-    print("最小值：", np.min(br_len_list), "最大值：", np.max(br_len_list), "平均值：", np.mean(br_len_list), "中位数,", np.median(br_len_list) )
+    print("min：", np.min(br_len_list), "max：", np.max(br_len_list), "mean：", np.mean(br_len_list), "median,", np.median(br_len_list) )
     return tuple_data_list
 
 
