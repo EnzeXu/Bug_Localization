@@ -3,23 +3,23 @@ venv/*
 __pycache__/*
 .DS_Store
 
-dataset/.idea/*
-dataset/__pycache__/*
-dataset/.DS_Store
-
-utils/.idea/*
-utils/__pycache__/*
-utils/.DS_Store
+#dataset/.idea/*
+#dataset/__pycache__/*
+#dataset/.DS_Store
+#
+#utils/.idea/*
+#utils/__pycache__/*
+#utils/.DS_Store
 
 *.npy
 *.png
 *.ipynb
-
-test*.py
+test_check.py
+#test_*.py
 logs*.txt
 one_time*
 
-!test.py
+test.py
 
 
 wandb/*
