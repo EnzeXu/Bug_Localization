@@ -84,7 +84,7 @@ def validate(model, valid_loader, criterion, device):
     # print(f"Validation Loss: {avg_loss:.4f}")
     return avg_loss
 
-def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs, main_path, timestring, seed=None):
+def run(model, train_loader, valid_loader, criterion, optimizer, scheduler, device, epochs, main_path, timestring, seed=None):
     best_val_loss = float("inf")
 
     save_model_folder = os.path.join(main_path, "save_model", timestring)
@@ -101,7 +101,7 @@ def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs,
         val_loss = validate(model, valid_loader, criterion, device)
         t_tmp = time.time()
 
-        wandb.log({"epoch": epoch, "train_loss": train_loss, "valid_loss": val_loss})
+        wandb.log({"epoch": epoch, "train_loss": train_loss, "valid_loss": val_loss, "lr": optimizer.param_groups[0]['lr']})
 
         if (epoch + 1) % epoch_step == 0:
             print(f"[{get_now_string()}] Epoch {epoch + 1:04d}/{epochs:04d}, train_loss: {train_loss:.12f}, val_loss: {val_loss:.12f}, "
@@ -140,6 +140,7 @@ def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs,
                 "seed": seed,
             }
             torch.save(save_dic, f"{save_model_folder}/last_model.pth")
+        scheduler.step()
 
     print("Training complete.")
 
@@ -253,15 +254,15 @@ def main_run(main_path):
 
     # Define criterion and optimizer
     criterion = nn.BCEWithLogitsLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
-
-
+    # optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.SGD(model.parameters(), lr=0.1)  # Initial learning rate
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     # Run training and validation
 
     save_random_weight(model, save_model_folder, timestring)
 
     if not args.random:
-        run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=30, main_path=main_path, timestring=timestring, seed=seed)
+        run(model, train_loader, valid_loader, criterion, optimizer, scheduler, device, epochs=100, main_path=main_path, timestring=timestring, seed=seed)
     if not args.no_wandb:
         wandb.finish()
 

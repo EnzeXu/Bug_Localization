@@ -142,7 +142,7 @@ if __name__ == "__main__":
         # "20241125_160003_760665",  # 19
         # "20241125_160032_203238",  # 20
         # "20241125_152342_633071",  # random seed: 42, batch size: 64
-        "20241125_162613_488842",
+        "20241125_162613_488842",  # random seed: 99, batch size 64
     ]
     for one_time_string in time_string_list:
         test_evaluation(f"save_model/{one_time_string}/best_model.pth", f"save_model/{one_time_string}/test_data.pkl", timestring=one_time_string)
