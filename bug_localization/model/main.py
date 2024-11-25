@@ -1,4 +1,12 @@
-import os.path
+import os
+import argparse
+import torch
+import time
+import torch.nn as nn
+import torch.optim as optim
+import wandb
+import pickle
+from tqdm import tqdm
 
 from ..dataset import get_now_string
 
@@ -7,16 +15,19 @@ from ..utils.pretrained import T5CODE_TOKENIZER, T5TEXT_TOKENIZER
 from ..dataset import get_now_string, set_random_seed
 from .model import BLNT5
 
-import torch
-import time
-import torch.nn as nn
-import torch.optim as optim
-import wandb
-import pickle
 
-from tqdm import tqdm
 
 #train the data for 1 epoch using training dataset
+
+
+def save_random_weight(model, save_model_folder, timestring):
+    save_dic = {
+        "timestring": timestring,
+        "state_dict": model.state_dict(),
+    }
+    torch.save(save_dic, f"{save_model_folder}/random.pth")
+
+
 def train(model, train_loader, criterion, optimizer, device):
     model.train()
     total_loss = 0.0
@@ -117,15 +128,45 @@ def run(model, train_loader, valid_loader, criterion, optimizer, device, epochs,
             else:
                 print()
 
+        if epoch + 1 == epochs:
+            save_dic = {
+                "timestring": timestring,
+                "state_dict": model.state_dict(),
+                "epoch": epoch,
+                "epochs": epochs,
+                "train_loss": train_loss,
+                "val_loss": val_loss,
+                "lr": optimizer.param_groups[0]['lr'],
+                "seed": seed,
+            }
+            torch.save(save_dic, f"{save_model_folder}/last_model.pth")
+
     print("Training complete.")
 
 
 def main_run(main_path):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Set random seed"
+    )
+    parser.add_argument(
+        "--random", action="store_true", default=False, help="Enable random weights (skip training, data save and model save)"
+    )
+    parser.add_argument(
+        "--no_wandb", action="store_true", default=False, help="Disable wandb"
+    )
+    args = parser.parse_args()
+    if args.random:
+        args.no_wandb = True
+
     timestring = get_now_string()
-    seed = 42
-    wandb.init(project="BLNT5", name=f"In-Dis_{timestring}")
+    seed = args.seed
+    if not args.no_wandb:
+        wandb.init(project="BLNT5", name=f"In-Dis_{timestring}")
     set_random_seed(seed)
-    print(f"Timestring: {timestring}")
+    print("#" * 200)
+    print(f"[## Timestring: {timestring} ##]")
+    print("#" * 200)
     # step1: 数据处理
     # 从robolectric_dataset.csv中读取数据，创造三元组列表。
     data_path = os.path.join(main_path, "data/csv/robolectric@robolectric.csv")
@@ -142,7 +183,7 @@ def main_run(main_path):
     t5_tokenizer = T5TEXT_TOKENIZER.from_pretrained("google-t5/t5-small", legacy=True)
     code_t5_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")  # Example CodeT5 model
 
-    batch_size = 32
+    batch_size = 128
     print("#" * 200)
     print(f"train_data_list[0]:\n{train_data_list[0]}")
     print(f"valid_data_list[0]:\n{valid_data_list[0]}")
@@ -152,12 +193,14 @@ def main_run(main_path):
     save_model_folder = os.path.join(main_path, "save_model", timestring)
     if not os.path.exists(save_model_folder):
         os.makedirs(save_model_folder)
-    with open(os.path.join(save_model_folder, "train_data.pkl"), "wb") as f:
-        pickle.dump(train_data_list, f)
-    with open(os.path.join(save_model_folder, "valid_data.pkl"), "wb") as f:
-        pickle.dump(valid_data_list, f)
-    with open(os.path.join(save_model_folder, "test_data.pkl"), "wb") as f:
-        pickle.dump(test_data_list, f)
+
+    if not args.random:
+        with open(os.path.join(save_model_folder, "train_data.pkl"), "wb") as f:
+            pickle.dump(train_data_list, f)
+        with open(os.path.join(save_model_folder, "valid_data.pkl"), "wb") as f:
+            pickle.dump(valid_data_list, f)
+        with open(os.path.join(save_model_folder, "test_data.pkl"), "wb") as f:
+            pickle.dump(test_data_list, f)
 
     train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=True, name="train")
     valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=False, name="valid")
@@ -211,8 +254,13 @@ def main_run(main_path):
 
 
     # Run training and validation
-    run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=30, main_path=main_path, timestring=timestring, seed=seed)
-    wandb.finish()
+
+    save_random_weight(model, save_model_folder, timestring)
+
+    if not args.random:
+        run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=30, main_path=main_path, timestring=timestring, seed=seed)
+    if not args.no_wandb:
+        wandb.finish()
 
 
 if __name__ == '__main__':
