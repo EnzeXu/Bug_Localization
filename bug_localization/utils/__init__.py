@@ -1,5 +1,6 @@
 from .BRtoVectorAndMetoVector import BROrMethodToVector
 from .pretrained import *
+from .map import *
 
 __all__ = [
     "BROrMethodToVector",
