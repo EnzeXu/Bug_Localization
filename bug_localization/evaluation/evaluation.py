@@ -56,6 +56,7 @@ def test_evaluation(model_load_path, data_path, timestring=None):
                                     shuffle=False, name="test")
 
     model = BLNT5(fix_pretrain_weights=True)
+    model.to(device)
     model = load_model(model, model_load_path)
     criterion = nn.BCEWithLogitsLoss()
     model.eval()
