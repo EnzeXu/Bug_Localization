@@ -32,8 +32,8 @@ def process_csv_to_tuple_list(data_path):
     score_list = []
     text_tokenizer = T5TEXT_TOKENIZER.from_pretrained("google-t5/t5-small", legacy=True)
     code_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")
-    br_thres_low, br_thres_high = 32, 128
-    m_thres_low, m_thres_high = 32, 128
+    br_thres_low, br_thres_high = 0,355#32, 128
+    m_thres_low, m_thres_high = 0,229#32, 128
     # print("Parsing data from csv:")
     for idx, row in tqdm(valid_rows.iterrows(), total=len(valid_rows), desc="Processing rows"):  # for idx, row in valid_rows.iterrows():
         # if idx == 2:

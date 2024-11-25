@@ -193,7 +193,7 @@ def main_run(main_path):
 
 
     # Run training and validation
-    run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=100, main_path=main_path, timestring=timestring)
+    run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=1000, main_path=main_path, timestring=timestring)
     wandb.finish()
 
 
