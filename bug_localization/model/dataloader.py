@@ -89,7 +89,7 @@ def process_csv_to_tuple_list(data_path):
 # tuple_data_list contains (br, method, score)
 # Step 2: Shuffle and split the data to train, val and test set. input data is tuple_data_list
 def split_data(tuple_list, train_ratio=0.8, valid_ratio=0.1, test_ratio=0.1):
-    # random.shuffle(tuple_list)             #这句话暂时注释掉
+    random.shuffle(tuple_list)             #这句话暂时注释掉
     total = len(tuple_list)
     train_end = int(total * train_ratio)
     valid_end = train_end + int(total * valid_ratio)

@@ -49,6 +49,8 @@ def test_evaluation(model_load_path, data_path, timestring=None):
 
     with open(data_path, "rb") as f:
         test_data_list = pickle.load(f)
+    score_list = [item[2] for item in test_data_list]
+    print(f"Score distribution [Truth]: 0 count = {score_list.count(0)}, 1 count = {score_list.count(1)}, Total = {len(score_list)}")
 
     test_loader = create_dataloader(test_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size,
                                     shuffle=False, name="test")
@@ -87,6 +89,8 @@ def test_evaluation(model_load_path, data_path, timestring=None):
             # break
 
     avg_loss = total_loss / len(test_loader)
+    print(f"Score distribution [Truth]: 0 count = {all_truths.count(0)}, 1 count = {all_truths.count(1)}, Total = {len(all_truths)}")
+    print(f"Score distribution [Prediction]: 0 count = {all_predictions.count(0)}, 1 count = {all_predictions.count(1)}, Total = {len(all_predictions)}")
 
     overall_accuracy, _, _ = metric_accuracy(all_truths, all_predictions)
     overall_precision, _, _ = metric_precision(all_truths, all_predictions)
@@ -99,18 +103,30 @@ def test_evaluation(model_load_path, data_path, timestring=None):
     print(f"Precision: {overall_precision:.12f}")
     print(f"Recall: {overall_recall:.12f}")
     print(f"F1 Score: {overall_f1_score:.12f}")
-    print(f"{timestring},{model_load_path},{avg_loss},{overall_accuracy},{overall_precision},{overall_recall},{overall_f1_score}")
+    print(f"{timestring},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
+          f"{all_predictions.count(0)},{all_predictions.count(1)},{len(all_predictions)},"
+          f"{avg_loss},{overall_accuracy},{overall_precision},{overall_recall},{overall_f1_score}")
+    with open("log.txt", "w") as f:
+        f.write(f"{timestring},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
+                f"{all_predictions.count(0)},{all_predictions.count(1)},{len(all_predictions)},"
+                f"{avg_loss},{overall_accuracy},{overall_precision},{overall_recall},{overall_f1_score}\n")
     print()
 
 
 if __name__ == "__main__":
     time_string_list = [
-        "20241125_144153_182984",
-        "20241125_144223_713220",
-        "20241125_144254_060896",
-        "20241125_144318_994388",
-        "20241125_144341_308837",
+        # "20241125_144153_182984",
+        # "20241125_144223_713220",
+        # "20241125_144254_060896",
+        # "20241125_144318_994388",
+        # "20241125_144341_308837",
+        "20241125_151709_404653",
+        "20241125_151817_922505",
+        "20241125_151840_380934",
+        "20241125_151910_970700",
+        "20241125_151952_270729",
+
     ]
     for one_time_string in time_string_list:
-        test_evaluation(f"save_model/{one_time_string}/random.pth", "save_model/20241125_114715_974022/test_data.pkl", timestring=one_time_string)
+        test_evaluation(f"save_model/{one_time_string}/random.pth", f"save_model/{one_time_string}/test_data.pkl", timestring=one_time_string)
     pass

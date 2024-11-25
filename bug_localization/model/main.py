@@ -183,7 +183,7 @@ def main_run(main_path):
     t5_tokenizer = T5TEXT_TOKENIZER.from_pretrained("google-t5/t5-small", legacy=True)
     code_t5_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")  # Example CodeT5 model
 
-    batch_size = 128
+    batch_size = 64
     print("#" * 200)
     print(f"train_data_list[0]:\n{train_data_list[0]}")
     print(f"valid_data_list[0]:\n{valid_data_list[0]}")
@@ -199,8 +199,8 @@ def main_run(main_path):
             pickle.dump(train_data_list, f)
         with open(os.path.join(save_model_folder, "valid_data.pkl"), "wb") as f:
             pickle.dump(valid_data_list, f)
-        with open(os.path.join(save_model_folder, "test_data.pkl"), "wb") as f:
-            pickle.dump(test_data_list, f)
+    with open(os.path.join(save_model_folder, "test_data.pkl"), "wb") as f:
+        pickle.dump(test_data_list, f)
 
     train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=True, name="train")
     valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=False, name="valid")
