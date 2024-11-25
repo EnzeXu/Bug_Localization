@@ -139,7 +139,7 @@ def main_run(main_path):
     t5_tokenizer = T5TEXT_TOKENIZER.from_pretrained("google-t5/t5-small", legacy=True)
     code_t5_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")  # Example CodeT5 model
 
-    batch_size = 2
+    batch_size = 32
 
     train_loader = create_dataloader(train_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=False)
     valid_loader = create_dataloader(valid_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size, shuffle=False)
