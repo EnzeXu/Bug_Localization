@@ -16,7 +16,9 @@ __pycache__/*
 *.ipynb
 test_check.py
 #test_*.py
-logs*.txt
+log*.txt
+*.xlsx
+log*.csv
 one_time*
 
 test.py

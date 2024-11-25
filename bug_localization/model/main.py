@@ -150,6 +150,9 @@ def main_run(main_path):
         "--seed", type=int, default=42, help="Set random seed"
     )
     parser.add_argument(
+        "--gpu_id", type=int, default=3, help="Set GPU ID (default:3)"
+    )
+    parser.add_argument(
         "--random", action="store_true", default=False, help="Enable random weights (skip training, data save and model save)"
     )
     parser.add_argument(
@@ -223,7 +226,7 @@ def main_run(main_path):
     # step3: init model
     model = BLNT5(fix_pretrain_weights=True)
     # print(model)
-    gpu_id = 3
+    gpu_id = args.gpu_id
 
     # Check if CUDA is available
     device = torch.device(f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu")

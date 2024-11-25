@@ -106,7 +106,7 @@ def test_evaluation(model_load_path, data_path, timestring=None):
     print(f"{timestring},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
           f"{all_predictions.count(0)},{all_predictions.count(1)},{len(all_predictions)},"
           f"{avg_loss},{overall_accuracy},{overall_precision},{overall_recall},{overall_f1_score}")
-    with open("log.txt", "w") as f:
+    with open("log_16_20.csv", "a") as f:
         f.write(f"{timestring},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
                 f"{all_predictions.count(0)},{all_predictions.count(1)},{len(all_predictions)},"
                 f"{avg_loss},{overall_accuracy},{overall_precision},{overall_recall},{overall_f1_score}\n")
@@ -120,12 +120,26 @@ if __name__ == "__main__":
         # "20241125_144254_060896",
         # "20241125_144318_994388",
         # "20241125_144341_308837",
-        "20241125_151709_404653",
-        "20241125_151817_922505",
-        "20241125_151840_380934",
-        "20241125_151910_970700",
-        "20241125_151952_270729",
-
+        # "20241125_151709_404653",  # 6
+        # "20241125_151817_922505",  # 7
+        # "20241125_151840_380934",  # 8
+        # "20241125_151910_970700",  # 9
+        # "20241125_151952_270729",  # 10
+        # "20241125_152801_624755",  # 1
+        # "20241125_152834_619761",  # 2
+        # "20241125_152901_962635",  # 3
+        # "20241125_152929_369774",  # 4
+        # "20241125_152957_614023",  # 5
+        # "20241125_155411_720225",  # 11
+        # "20241125_155440_415618",  # 12
+        # "20241125_155503_376250",  # 13
+        # "20241125_155526_537369",  # 14
+        # "20241125_155549_759435",  # 15
+        "20241125_155839_683878",  # 16
+        "20241125_155908_022633",  # 17
+        "20241125_155936_046389",  # 18
+        "20241125_160003_760665",  # 19
+        "20241125_160032_203238",  # 20
     ]
     for one_time_string in time_string_list:
         test_evaluation(f"save_model/{one_time_string}/random.pth", f"save_model/{one_time_string}/test_data.pkl", timestring=one_time_string)
