@@ -256,7 +256,7 @@ def main_run(main_path):
     criterion = nn.BCEWithLogitsLoss()
     # optimizer = optim.Adam(model.parameters(), lr=1e-3)
     optimizer = optim.Adam(model.parameters(), lr=0.1)
-    # optimizer = optim.SGD(model.parameters(), lr=0.1)  # Initial learning rate
+    # optimizer = optim.SGD(model.parameters(), lr=0.1)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     # Run training and validation
 
