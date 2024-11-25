@@ -3,7 +3,10 @@ import pandas as pd
 import numpy as np
 
 import torch
+from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
+
+from ..utils import T5TEXT_TOKENIZER, T5CODE_TOKENIZER
 
 
 #Step1: read from csv file to the get the tuple_data_list=[], which contains all tuples(br, m, score), return tuple_data_list
@@ -24,35 +27,62 @@ def process_csv_to_tuple_list(data_path):
 
     print("How many valid rows:", len(valid_rows))
     # create tuple from valid rows
-    br_len_list = []
-    method_len_list = []
+    br_token_len_list = []
+    method_token_len_list = []
     score_list = []
-    for idx, row in valid_rows.iterrows():
+    text_tokenizer = T5TEXT_TOKENIZER.from_pretrained("google-t5/t5-small", legacy=True)
+    code_tokenizer = T5CODE_TOKENIZER.from_pretrained("Salesforce/codet5-small")
+    br_thres_low, br_thres_high = 32, 128
+    m_thres_low, m_thres_high = 32, 128
+    # print("Parsing data from csv:")
+    for idx, row in tqdm(valid_rows.iterrows(), total=len(valid_rows), desc="Processing rows"):  # for idx, row in valid_rows.iterrows():
         # if idx == 2:
         #     break
-        title = str(row['issue_title'])
-        body = str(row['issue_body'])
+        title = str(row['issue_title']).strip()
+        body = str(row['issue_body']).strip()
         br = title + "\t" + body
+        method = str(row['commit_code_snippet'])
+
+        br_input_ids = text_tokenizer(br, return_tensors="pt").input_ids
+        method_input_ids = code_tokenizer(method, return_tensors="pt").input_ids
+        # print(len(input_ids[0]))
+
+        # br_tokens = text_tokenizer(
+        #     br.replace("\n", " ").replace("\t", " ").strip(),
+        #     max_length=512,
+        #     truncation=True,
+        #     padding="max_length",
+        #     return_tensors="pt"
+        # )
+        # print(f"br token length: {len(br_input_ids[0])} method token length: {len(method_input_ids[0])}")
+
+        if len(br_input_ids[0]) > br_thres_high or len(br_input_ids[0]) < br_thres_low:
+            continue
+        if len(method_input_ids[0]) > m_thres_high or len(method_input_ids[0]) < m_thres_low:
+            continue
+        # print(f"[passed] br token length: {len(br_input_ids[0])} method token length: {len(method_input_ids[0])}")
+        # print(f"br: {br}")
         # print(f"BR: '{br}'")
 
-        br_len_list.append(len(br))
-
-        method = str(row['commit_code_snippet'])
-        method_len_list.append(len(method))
+        br_token_len_list.append(len(br_input_ids[0]))
+        method_token_len_list.append(len(method_input_ids[0]))
 
         score = int(row['relativity_score'])
         score_list.append(score)
-        tuple = (br, method, score)
-        tuple_data_list.append(tuple)
+        data_tuple = (br, method, score)
+        tuple_data_list.append(data_tuple)
 
-    np.save("br_length.npy", np.array(br_len_list))
-    np.save("method_length.npy", np.array(method_len_list))
+    np.save("br_length.npy", np.array(br_token_len_list))
+    np.save("method_length.npy", np.array(method_token_len_list))
     np.save("score.npy", np.array(score_list))
     print(f"Score distribution: 0 count = {score_list.count(0)}, 1 count = {score_list.count(1)}, Total = {len(score_list)}")
     # print(br_len_list)
 
     # print("br的长度列表: ", sorted(br_len_list), "\n" )
-    print("min：", np.min(br_len_list), "max：", np.max(br_len_list), "mean：", np.mean(br_len_list), "median,", np.median(br_len_list) )
+    print(f"Bug Report Statistics (length={len(br_token_len_list)}):")
+    print("min：", np.min(br_token_len_list), "max：", np.max(br_token_len_list), "mean：", np.mean(br_token_len_list), "median,", np.median(br_token_len_list))
+    print(f"Method Statistics (length={len(method_token_len_list)}):")
+    print("min：", np.min(method_token_len_list), "max：", np.max(method_token_len_list), "mean：", np.mean(method_token_len_list), "median,", np.median(method_token_len_list))
     return tuple_data_list
 
 
@@ -64,6 +94,7 @@ def split_data(tuple_list, train_ratio=0.8, valid_ratio=0.1, test_ratio=0.1):
     train_end = int(total * train_ratio)
     valid_end = train_end + int(total * valid_ratio)
     train_data_list = tuple_list[:train_end]
+    print(f"train_data_list[:2]: {train_data_list[:2]}")
     valid_data_list = tuple_list[train_end:valid_end]
     test_data_list = tuple_list[valid_end:]
     return train_data_list, valid_data_list, test_data_list
@@ -71,7 +102,7 @@ def split_data(tuple_list, train_ratio=0.8, valid_ratio=0.1, test_ratio=0.1):
 
 # Step 2: Define the BLNT5 Dataset
 class BLNT5Dataset(Dataset):
-    def __init__(self, data, t5_tokenizer, code_t5_tokenizer, br_max_length=512, m_max_length=512):
+    def __init__(self, data, t5_tokenizer, code_t5_tokenizer, br_max_length=128, m_max_length=128):
         self.data = data
         self.t5_tokenizer = t5_tokenizer
         self.code_t5_tokenizer = code_t5_tokenizer

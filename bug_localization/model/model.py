@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from ..utils.pretrained import T5CODE_MODEL, T5TEXT_MODEL
+from ..utils.pretrained import T5CODE_MODEL, T5TEXT_MODEL, T5TEXT_TOKENIZER, T5CODE_TOKENIZER
 
 class BLNT5(nn.Module):
     def __init__(self, hidden_dim: int = 128):
@@ -44,6 +44,8 @@ class BLNT5(nn.Module):
             torch.Tensor: The predicted relativity score (sigmoid output), between [0,1].
         """
         # Process bug report (br) through T5
+        # print(f"$$$$$$$$$$$ (len={len(T5TEXT_TOKENIZER.convert_ids_to_tokens(br_input_ids[0]))}) {T5TEXT_TOKENIZER.convert_ids_to_tokens(br_input_ids[0])}")
+        # print(f"$$$$$$$$$$$ {T5CODE_TOKENIZER.convert_ids_to_tokens(method_input_ids[0])}")
         br_outputs = self.t5.encoder(input_ids=br_input_ids, attention_mask=br_attention_mask)
         br_hidden_states = br_outputs.last_hidden_state  # Shape: (batch_size, seq_length, hidden_dim)  (2, 512, 512)
         # print("br_layer_outputs:", br_hidden_states , "shape:", br_hidden_states.shape )

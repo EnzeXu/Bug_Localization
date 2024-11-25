@@ -157,9 +157,26 @@ def analyze_metrics_distribution(data, save_path, title):
 #     plt.close()
 
 if __name__ == "__main__":
-    file_path = "method_length.npy"
+    file_path = "method_length_original.npy"
+    # file_path = "br_length_original.npy"
     data = list(np.load(file_path))
+    print(f"data total length: {len(data)}")
 
     data.sort()
-    data = data[1000:-1000]
-    analyze_metrics_distribution(data, file_path.replace(".npy", ".png"), title="Method Length Distribution")
+    thres_start = 0.25
+    thres_end = 0.75
+    cut_start = int(thres_start * len(data))
+    cut_end = int(thres_end * len(data))
+
+    print(f"{thres_start * 100}%: {data[cut_start]}, {thres_end * 100}%: {data[cut_end]}")
+    # data = [item for item in data if 99 <= item <= 166]
+    # print(f"data length in 99 <= x <= 166: {len(data)}")
+    # data = data[cut_start:cut_end]
+    analyze_metrics_distribution(data, file_path.replace(".npy", ".png"), title="Method Length")
+    # analyze_metrics_distribution(data, file_path.replace(".npy", ".png"), title="Bug Report Length")
+    # br: 10%: 18, 90%: 355
+    # method: 10%: 22, 90%: 229
+
+    # br: 25.0%: 31, 75.0%: 132
+    # method: 25.0%: 33, 75.0%: 125
+
