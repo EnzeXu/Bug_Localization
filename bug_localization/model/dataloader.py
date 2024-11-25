@@ -94,7 +94,7 @@ def split_data(tuple_list, train_ratio=0.8, valid_ratio=0.1, test_ratio=0.1):
     train_end = int(total * train_ratio)
     valid_end = train_end + int(total * valid_ratio)
     train_data_list = tuple_list[:train_end]
-    print(f"train_data_list[:2]: {train_data_list[:2]}")
+    # print(f"train_data_list[:2]: {train_data_list[:2]}")
     valid_data_list = tuple_list[train_end:valid_end]
     test_data_list = tuple_list[valid_end:]
     return train_data_list, valid_data_list, test_data_list
@@ -147,9 +147,9 @@ class BLNT5Dataset(Dataset):
 
 
 # Step 2: Prepare DataLoader
-def create_dataloader(data, t5_tokenizer, code_t5_tokenizer, batch_size, shuffle=False):   #batch_size=2, 可以=16
+def create_dataloader(data, t5_tokenizer, code_t5_tokenizer, batch_size, shuffle=False, name=None):   #batch_size=2, 可以=16
     dataset = BLNT5Dataset(data, t5_tokenizer, code_t5_tokenizer)
-    print("dataset length: ", len(dataset))
+    print(f"{name + ' ' if name else ''}dataset length: ", len(dataset))
     dataloader = DataLoader(
         dataset,
         batch_size=batch_size,

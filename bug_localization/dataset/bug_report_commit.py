@@ -2,7 +2,7 @@ import os
 import re
 import pickle
 
-from ._utils import http_get_multiple_page, http_get
+from .utils import http_get_multiple_page, http_get
 from .bug_report_base import BugReportBase
 
 

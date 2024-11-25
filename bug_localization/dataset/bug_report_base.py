@@ -1,4 +1,4 @@
-from ._utils import get_now_string
+from .utils import get_now_string
 
 class BugReportBase:
     def __init__(self, api_url=None, raw_url=None, silence=True):

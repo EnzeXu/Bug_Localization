@@ -3,7 +3,7 @@ import pickle
 import pandas as pd
 from tqdm import tqdm
 
-from ._utils import http_get_multiple_page
+from .utils import http_get_multiple_page
 from .bug_report_base import BugReportBase
 from .bug_report_issue import BugReportIssue
 

@@ -5,6 +5,9 @@ import pickle
 import pandas as pd
 import datetime
 import pytz
+import random
+import numpy as np
+import torch
 import re
 from urllib.parse import urlencode
 from langdetect import detect
@@ -243,5 +246,29 @@ def is_main_language_english(repo_name):
     # print(f"repo_name = '{repo_name}', highest_lang = '{main_lang}', highest_ratio = {main_ratio:.4f}, english_ratio = {english_ratio:.4f}")
     is_english = int((main_lang == "en") and english_ratio >= 0.7)
     return is_english, main_lang, main_ratio, english_ratio, lang_dic
+
+
+def set_random_seed(seed: int):
+    """
+    Sets the random seed for Python's `random`, NumPy, and PyTorch to ensure reproducibility.
+    Args:
+        seed (int): The seed value to set.
+    """
+    # Set seed for Python's random module
+    random.seed(seed)
+
+    # Set seed for NumPy
+    np.random.seed(seed)
+
+    # Set seed for PyTorch (both CPU and CUDA)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # If using multiple GPUs
+
+    # Ensure deterministic behavior in PyTorch
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    print(f"Random seed set to: {seed}")
 
 

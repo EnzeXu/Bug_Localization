@@ -2,6 +2,7 @@ requests
 tqdm
 pandas
 pytz
+numpy
 langdetect
 transformers
 sentencepiece

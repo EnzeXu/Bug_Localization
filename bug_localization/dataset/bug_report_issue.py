@@ -1,7 +1,7 @@
 import os
 import pickle
 
-from ._utils import http_get
+from .utils import http_get
 from .bug_report_base import BugReportBase
 from .bug_report_pull_request import BugReportPullRequest
 

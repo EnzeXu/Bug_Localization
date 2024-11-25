@@ -3,7 +3,7 @@ import re
 import pickle
 from tqdm import tqdm
 
-from ._utils import http_get_multiple_page, http_get
+from .utils import http_get_multiple_page, http_get
 from .bug_report_base import BugReportBase
 from .bug_report_commit import BugReportCommit
 

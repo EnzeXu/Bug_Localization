@@ -1,7 +1,7 @@
 import argparse
 
 from .bug_report_repo import BugReportRepo
-from ._utils import get_repo_from_file
+from .utils import get_repo_from_file
 
 
 def make_one_dataset():
