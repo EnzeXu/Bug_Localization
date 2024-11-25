@@ -3,7 +3,7 @@ import torch.nn as nn
 from ..utils.pretrained import T5CODE_MODEL, T5TEXT_MODEL, T5TEXT_TOKENIZER, T5CODE_TOKENIZER
 
 class BLNT5(nn.Module):
-    def __init__(self, hidden_dim: int = 128):
+    def __init__(self, hidden_dim: int = 128, fix_pretrain_weights=True):
         """
         Initializes the BLNT5 model.
         Args:
@@ -16,10 +16,11 @@ class BLNT5(nn.Module):
         self.code_t5 = T5CODE_MODEL
 
         # Freeze T5 and CodeT5 to avoid fine-tuning if not needed
-        for param in self.t5.parameters():
-            param.requires_grad = False
-        for param in self.code_t5.parameters():
-            param.requires_grad = False
+        if fix_pretrain_weights:
+            for param in self.t5.parameters():
+                param.requires_grad = False
+            for param in self.code_t5.parameters():
+                param.requires_grad = False
 
         # Define the MLP layers
         t5_output_dim = self.t5.config.d_model  # Output dimension of T5

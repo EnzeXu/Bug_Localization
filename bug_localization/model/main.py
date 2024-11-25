@@ -160,7 +160,7 @@ def main_run(main_path):
     # step1和step2都在dataloader.py中的函数完成
 
     # step3: init model
-    model = BLNT5()
+    model = BLNT5(fix_pretrain_weights=False)
     # print(model)
     gpu_id = 3
 
@@ -193,7 +193,7 @@ def main_run(main_path):
 
 
     # Run training and validation
-    run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=1000, main_path=main_path, timestring=timestring)
+    run(model, train_loader, valid_loader, criterion, optimizer, device, epochs=100, main_path=main_path, timestring=timestring)
     wandb.finish()
 
 
