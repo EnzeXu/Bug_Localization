@@ -102,7 +102,7 @@ def split_data(tuple_list, train_ratio=0.8, valid_ratio=0.1, test_ratio=0.1):
 
 # Step 2: Define the BLNT5 Dataset
 class BLNT5Dataset(Dataset):
-    def __init__(self, data, t5_tokenizer, code_t5_tokenizer, br_max_length=128, m_max_length=128):
+    def __init__(self, data, t5_tokenizer, code_t5_tokenizer, br_max_length=355, m_max_length=229):
         self.data = data
         self.t5_tokenizer = t5_tokenizer
         self.code_t5_tokenizer = code_t5_tokenizer
