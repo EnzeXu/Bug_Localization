@@ -173,7 +173,7 @@ if __name__ == "__main__":
         # "20241126_004523_692284",  # 17
         # "20241126_102746_973137",  # 18
         # "20241126_102816_819133",  # 19
-        "20241126_102846_276062",  # 20
+        # "20241126_102846_276062",  # 20
     ]
     for one_time_string in time_string_list:
         # test_evaluation(f"save_model/{one_time_string}/random.pth", f"save_model/{one_time_string}/test_data.pkl", timestring=one_time_string)
