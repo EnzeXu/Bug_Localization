@@ -151,8 +151,9 @@ if __name__ == "__main__":
         # "20241125_160032_203238",  # 20
         # "20241125_152342_633071",  # random seed: 42, batch size: 64
         # "20241125_162613_488842",  # random seed: 99, batch size 64 best!
-        "20241125_182221_685514",  # random seed: 99, batch size 64 scheduler SGD
-        "20241125_182411_769566",  # random seed: 99, batch size 64 scheduler Adam
+        # "20241125_182221_685514",  # random seed: 99, batch size 64 scheduler SGD
+        # "20241125_182411_769566",  # random seed: 99, batch size 64 scheduler Adam
+        "20241125_225820_649441",  # random seed: 99, batch size 64, CosSim Approach
 
     ]
     for one_time_string in time_string_list:
