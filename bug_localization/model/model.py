@@ -139,12 +139,14 @@ class BLNT5Cosine(nn.Module):
         # print("method_layer_outputs:", method_hidden_states , "shape:", method_hidden_states .shape )   # (2, 512, 768)
         v2 = method_hidden_states.mean(dim=1)  # Mean pooling across the sequence (Shape: (batch_size, hidden_dim))
         # print("v2_outputs:", v2 , "shape:", v2.shape )  #  (2, 768)
+        v1_hidden = self.mlp_br(v1)
+        v2_hidden = self.mlp_m(v2)
 
-        dot_product = torch.sum(v1 * v2, dim=1, keepdim=True)  # Shape: (batch_size, 1)
+        dot_product = torch.sum(v1_hidden * v2_hidden, dim=1, keepdim=True)  # Shape: (batch_size, 1)
 
         # Compute the L2 norm of A and B
-        norm_1 = torch.norm(v1, p=2, dim=1, keepdim=True)  # Shape: (batch_size, 1)
-        norm_2 = torch.norm(v2, p=2, dim=1, keepdim=True)  # Shape: (batch_size, 1)
+        norm_1 = torch.norm(v1_hidden, p=2, dim=1, keepdim=True)  # Shape: (batch_size, 1)
+        norm_2 = torch.norm(v2_hidden, p=2, dim=1, keepdim=True)  # Shape: (batch_size, 1)
 
         similarity = dot_product / (norm_1 * norm_2 + 1e-12)
 
