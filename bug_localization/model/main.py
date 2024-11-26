@@ -13,8 +13,7 @@ from ..dataset import get_now_string
 from .dataloader import process_csv_to_tuple_list, split_data, create_dataloader
 from ..utils.pretrained import T5CODE_TOKENIZER, T5TEXT_TOKENIZER
 from ..dataset import get_now_string, set_random_seed
-from .model import BLNT5
-
+from .model import BLNT5Concat, BLNT5Cosine
 
 
 #train the data for 1 epoch using training dataset
@@ -24,6 +23,7 @@ def save_random_weight(model, save_model_folder, timestring):
     save_dic = {
         "timestring": timestring,
         "state_dict": model.state_dict(),
+        "model": model.__class__.__name__,
     }
     torch.save(save_dic, f"{save_model_folder}/random.pth")
 
@@ -84,7 +84,7 @@ def validate(model, valid_loader, criterion, device):
     # print(f"Validation Loss: {avg_loss:.4f}")
     return avg_loss
 
-def run(model, train_loader, valid_loader, criterion, optimizer, scheduler, device, epochs, main_path, timestring, seed=None):
+def run(model, train_loader, valid_loader, criterion, device, optimizer, scheduler, epochs, main_path, timestring, seed=None):
     best_val_loss = float("inf")
 
     save_model_folder = os.path.join(main_path, "save_model", timestring)
@@ -121,6 +121,7 @@ def run(model, train_loader, valid_loader, criterion, optimizer, scheduler, devi
                     "val_loss": val_loss,
                     "lr": optimizer.param_groups[0]['lr'],
                     "seed": seed,
+                    "model": model.__class__.__name__,
                 }
                 torch.save(save_dic, f"{save_model_folder}/best_model.pth")
                 print(" [Current Best]")
@@ -138,9 +139,11 @@ def run(model, train_loader, valid_loader, criterion, optimizer, scheduler, devi
                 "val_loss": val_loss,
                 "lr": optimizer.param_groups[0]['lr'],
                 "seed": seed,
+                "model": model.__class__.__name__,
             }
             torch.save(save_dic, f"{save_model_folder}/last_model.pth")
-        scheduler.step()
+        if scheduler is not None:
+            scheduler.step()
 
     print("Training complete.")
 
@@ -159,6 +162,9 @@ def main_run(main_path):
     parser.add_argument(
         "--no_wandb", action="store_true", default=False, help="Disable wandb"
     )
+    parser.add_argument(
+        "--model", type=str, default="BLNT5Concat", choices=["BLNT5Concat", "BLNT5Cosine"], help="BLNT5Concat or BLNT5Cosine"
+    )
     args = parser.parse_args()
     if args.random:
         args.no_wandb = True
@@ -166,7 +172,7 @@ def main_run(main_path):
     timestring = get_now_string()
     seed = args.seed
     if not args.no_wandb:
-        wandb.init(project="BLNT5", name=f"In-Dis_{timestring}")
+        wandb.init(project=args.model, name=f"In-Dis_{timestring}")
     set_random_seed(seed)
     print("#" * 200)
     print(f"[## Timestring: {timestring} ##]")
@@ -225,7 +231,10 @@ def main_run(main_path):
     # step1和step2都在dataloader.py中的函数完成
 
     # step3: init model
-    model = BLNT5(fix_pretrain_weights=True)
+    if args.model == "BLNT5Concat":
+        model = BLNT5Concat(fix_pretrain_weights=True)
+    else:
+        model = BLNT5Cosine(fix_pretrain_weights=True)
     # print(model)
     gpu_id = args.gpu_id
 
@@ -255,15 +264,15 @@ def main_run(main_path):
     # Define criterion and optimizer
     criterion = nn.BCEWithLogitsLoss()
     # optimizer = optim.Adam(model.parameters(), lr=1e-3)
-    optimizer = optim.Adam(model.parameters(), lr=0.1)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     # optimizer = optim.SGD(model.parameters(), lr=0.1)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     # Run training and validation
 
     save_random_weight(model, save_model_folder, timestring)
 
     if not args.random:
-        run(model, train_loader, valid_loader, criterion, optimizer, scheduler, device, epochs=100, main_path=main_path, timestring=timestring, seed=seed)
+        run(model, train_loader, valid_loader, criterion, device, optimizer, scheduler=None, epochs=100, main_path=main_path, timestring=timestring, seed=seed)
     if not args.no_wandb:
         wandb.finish()
 

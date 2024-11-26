@@ -7,12 +7,19 @@ from ..dataset import set_random_seed
 from .metrics import metric_accuracy, metric_precision, metric_recall, metric_f1_score
 from ..model.dataloader import process_csv_to_tuple_list, split_data, create_dataloader
 from ..utils.pretrained import T5CODE_TOKENIZER, T5TEXT_TOKENIZER
-from ..model import BLNT5
+from ..model import BLNT5Concat, BLNT5Cosine
 
 
-def load_model(model, model_load_path):
+def load_model(model_load_path, device):
     save_path = model_load_path  # f"{save_model_folder}/best_model.pth"
     checkpoint = torch.load(save_path, weights_only=False)
+    if "model" not in checkpoint or checkpoint["model"] == "BLNT5Concat":
+        model = BLNT5Concat(fix_pretrain_weights=True)
+        model_name = "BLNT5Concat"
+    else:
+        model = BLNT5Cosine(fix_pretrain_weights=True)
+        model_name = "BLNT5Cosine"
+    model.to(device)
     model.load_state_dict(checkpoint["state_dict"])
 
     if "train_loss" in checkpoint:
@@ -23,10 +30,11 @@ def load_model(model, model_load_path):
         timestring = checkpoint["timestring"]
         # lr = checkpoint["lr"]
         # seed = checkpoint["seed"]
-
+        print(f"[{timestring}] Model Name: {model_name}")
         print(f"[{timestring}] Model loaded successfully from epoch {epoch}/{epochs} with train loss {train_loss:.4f} and val loss {val_loss:.4f}.")
     else:
         timestring = checkpoint["timestring"]
+        print(f"[{timestring}] Model Name: {model_name}")
         print(f"[{timestring}] This is a random weights without training")
 
     return model
@@ -55,9 +63,9 @@ def test_evaluation(model_load_path, data_path, timestring=None):
     test_loader = create_dataloader(test_data_list, t5_tokenizer, code_t5_tokenizer, batch_size=batch_size,
                                     shuffle=False, name="test")
 
-    model = BLNT5(fix_pretrain_weights=True)
-    model.to(device)
-    model = load_model(model, model_load_path)
+    # model = BLNT5(fix_pretrain_weights=True)
+    # model.to(device)
+    model = load_model(model_load_path, device)
     criterion = nn.BCEWithLogitsLoss()
     model.eval()
     all_predictions = []
