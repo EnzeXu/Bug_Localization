@@ -19,11 +19,12 @@ from .model import BLNT5Concat, BLNT5Cosine
 #train the data for 1 epoch using training dataset
 
 
-def save_random_weight(model, save_model_folder, timestring):
+def save_random_weight(model, save_model_folder, timestring, seed=None):
     save_dic = {
         "timestring": timestring,
         "state_dict": model.state_dict(),
         "model": model.__class__.__name__,
+        "seed": seed,
     }
     torch.save(save_dic, f"{save_model_folder}/random.pth")
 
@@ -269,7 +270,7 @@ def main_run(main_path):
     # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     # Run training and validation
 
-    save_random_weight(model, save_model_folder, timestring)
+    save_random_weight(model, save_model_folder, timestring, seed)
 
     if not args.random:
         run(model, train_loader, valid_loader, criterion, device, optimizer, scheduler=None, epochs=100, main_path=main_path, timestring=timestring, seed=seed)

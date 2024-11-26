@@ -37,7 +37,7 @@ def load_model(model_load_path, device):
         print(f"[{timestring}] Model Name: {model_name}")
         print(f"[{timestring}] This is a random weights without training")
 
-    return model
+    return model, model_name
 
 
 def test_evaluation(model_load_path, data_path, timestring=None):
@@ -65,7 +65,7 @@ def test_evaluation(model_load_path, data_path, timestring=None):
 
     # model = BLNT5(fix_pretrain_weights=True)
     # model.to(device)
-    model = load_model(model_load_path, device)
+    model, model_name = load_model(model_load_path, device)
     criterion = nn.BCEWithLogitsLoss()
     model.eval()
     all_predictions = []
@@ -112,11 +112,11 @@ def test_evaluation(model_load_path, data_path, timestring=None):
     print(f"Precision: {overall_precision:.12f}")
     print(f"Recall: {overall_recall:.12f}")
     print(f"F1 Score: {overall_f1_score:.12f}")
-    print(f"{timestring},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
+    print(f"{timestring},{model_name},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
           f"{all_predictions.count(0)},{all_predictions.count(1)},{len(all_predictions)},"
           f"{avg_loss},{overall_accuracy},{overall_precision},{overall_recall},{overall_f1_score}")
-    with open("log_16_20.csv", "a") as f:
-        f.write(f"{timestring},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
+    with open("log_cossim.csv", "a") as f:
+        f.write(f"{timestring},{model_name},{model_load_path},{all_truths.count(0)},{all_truths.count(1)},{len(all_truths)},"
                 f"{all_predictions.count(0)},{all_predictions.count(1)},{len(all_predictions)},"
                 f"{avg_loss},{overall_accuracy},{overall_precision},{overall_recall},{overall_f1_score}\n")
     print()
@@ -150,12 +150,32 @@ if __name__ == "__main__":
         # "20241125_160003_760665",  # 19
         # "20241125_160032_203238",  # 20
         # "20241125_152342_633071",  # random seed: 42, batch size: 64
-        # "20241125_162613_488842",  # random seed: 99, batch size 64 best!
+        "20241125_162613_488842",  # random seed: 99, batch size 64 best!
         # "20241125_182221_685514",  # random seed: 99, batch size 64 scheduler SGD
         # "20241125_182411_769566",  # random seed: 99, batch size 64 scheduler Adam
-        "20241125_225820_649441",  # random seed: 99, batch size 64, CosSim Approach
-
+        # "20241125_225820_649441",  # random seed: 99, batch size 64, CosSim Approach
+        # "20241126_003327_587187",  # 1
+        # "20241126_003348_676292",  # 2
+        # "20241126_003408_449573",  # 3
+        # "20241126_003428_227361",  # 4
+        # "20241126_004132_463014",  # 5
+        # "20241126_004151_942381",  # 6
+        # "20241126_004211_039476",  # 7
+        # "20241126_004230_912761",  # 8
+        # "20241126_004250_163919",  # 9
+        # "20241126_004309_476900",  # 10
+        # "20241126_004328_605188",  # 11
+        # "20241126_004348_419864",  # 12
+        # "20241126_004407_749171",  # 13
+        # "20241126_004426_746732",  # 14
+        # "20241126_004445_945214",  # 15
+        # "20241126_004505_043646",  # 16
+        # "20241126_004523_692284",  # 17
+        # "20241126_102746_973137",  # 18
+        # "20241126_102816_819133",  # 19
+        "20241126_102846_276062",  # 20
     ]
     for one_time_string in time_string_list:
+        # test_evaluation(f"save_model/{one_time_string}/random.pth", f"save_model/{one_time_string}/test_data.pkl", timestring=one_time_string)
         test_evaluation(f"save_model/{one_time_string}/best_model.pth", f"save_model/{one_time_string}/test_data.pkl", timestring=one_time_string)
     pass
