@@ -3,6 +3,23 @@
 
 Welcome to the **Bug Localization** repository! This project focuses on localizing relevant code snippets in response to bug reports. The repository includes tools for dataset generation, training, and evaluation of the BLNT5 model with two variants: **Concat** and **CosSim**.
 
+You can find the project report [here](CSCI_680_Project_Report.pdf).
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Dataset Generation](#dataset-generation)
+- [Training](#training)
+  - [Command](#command)
+  - [Arguments](#arguments)
+  - [Example](#example)
+- [Contributors](#contributors)
+- [Acknowledgments](#acknowledgments)
+- [License](#license)
+- [Citation](#citation)
+
+
 ## Features
 - **Dataset Generation**: Automatically generate datasets for bug report and method pairs from GitHub repositories.
 - **Training**: Train BLNT5 models to predict similarity scores between bug reports and methods.
