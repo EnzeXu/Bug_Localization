@@ -27,3 +27,4 @@ test.py
 
 wandb/*
 save_model/*
+traverse/*
