@@ -3,8 +3,6 @@
 
 Welcome to the **Bug Localization** repository! This project focuses on localizing relevant code snippets in response to bug reports. The repository includes tools for dataset generation, training, and evaluation of the BLNT5 model with two variants: **Concat** and **CosSim**.
 
-You can find the project report [here](CSCI_680_Project_Report.pdf).
-
 ## Table of Contents
 
 - [Features](#features)
@@ -100,6 +98,7 @@ python run.py --random
 ## Contributors
 
 - **Enze Xu**: exu03@wm.edu
+- **Daoxuan Xu**: dxu05@wm.edu
 - **Yi Lin**: ylin13@wm.edu
 
 ---
@@ -116,7 +115,7 @@ If you use this code or dataset in your research, please cite this repository:
 
 ```bibtex
 @misc{Bug_Localization,
-  author = {Enze Xu and Yi Lin},
+  author = {Enze Xu, Daoxuan Xu and Yi Lin},
   title = {Bug Localization},
   year = {2024},
   howpublished = {\url{https://github.com/EnzeXu/Bug_Localization}}

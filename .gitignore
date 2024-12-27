@@ -19,6 +19,7 @@ test_check.py
 log*.txt
 *.xlsx
 *.sh
+*.pdf
 log*.csv
 one_time*
 
